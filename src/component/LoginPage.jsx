@@ -1,28 +1,18 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, BookOpen, User, Mail, Lock, ArrowRight, GraduationCap, Users, CheckCircle2 } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff, Mail, Lock, ArrowRight, BookOpen } from 'lucide-react';
+import axios from 'axios';
 
-const AuthPages = () => {
-    const [isLogin, setIsLogin] = useState(true);
-    const [showPassword, setShowPassword] = useState(false);
+const LoginPage = () => {
     const [formData, setFormData] = useState({
-        name: '',
         email: '',
-        password: '',
-        role: 'student'
+        password: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
 
     const navigate = useNavigate();
-
-    // Initialize users in localStorage if not exists
-    const initializeUsers = () => {
-        if (!localStorage.getItem('users')) {
-            localStorage.setItem('users', JSON.stringify([]));
-        }
-    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -37,18 +27,13 @@ const AuthPages = () => {
                 [name]: ''
             }));
         }
+        if (errors.submit) {
+            setErrors(prev => ({ ...prev, submit: '' }));
+        }
     };
 
     const validateForm = () => {
         const newErrors = {};
-
-        if (!isLogin) {
-            if (!formData.name.trim()) {
-                newErrors.name = 'Name is required';
-            } else if (formData.name.trim().length < 2) {
-                newErrors.name = 'Name must be at least 2 characters';
-            }
-        }
 
         if (!formData.email.trim()) {
             newErrors.email = 'Email is required';
@@ -66,147 +51,45 @@ const AuthPages = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSignup = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
 
         setIsLoading(true);
-        initializeUsers();
 
         try {
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const res = await axios.post('http://localhost:8080/api/user/login', formData);
+            const response = res.data;
+            const user = response.user;
 
-            // Check if user already exists
-            const existingUser = users.find(user => user.email === formData.email);
-            if (existingUser) {
-                setErrors({ email: 'User with this email already exists' });
-                setIsLoading(false);
-                return;
-            }
+            console.log(JSON.stringify(response));
 
-            // Create new user
-            const newUser = {
-                id: Date.now().toString(),
-                name: formData.name.trim(),
-                email: formData.email.trim(),
-                password: formData.password,
-                role: formData.role,
-                createdAt: new Date().toISOString()
-            };
-
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-
-            // Show success message
-            setShowSuccess(true);
-
-            // Reset form
-            setFormData({
-                name: '',
-                email: '',
-                password: '',
-                role: 'student'
-            });
-
-            // After 2 seconds, switch to login and hide success message
-            setTimeout(() => {
-                setShowSuccess(false);
-                setIsLogin(true);
-            }, 2000);
-
-        } catch (error) {
-            setErrors({ submit: 'Signup failed. Please try again.' });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleLogin = (e) => {
-        e.preventDefault();
-        if (!validateForm()) return;
-
-        setIsLoading(true);
-        initializeUsers();
-
-        try {
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-
-            // Find user by email
-            const user = users.find(u => u.email === formData.email);
-
-            if (!user) {
-                setErrors({ email: 'No account found with this email' });
-                setIsLoading(false);
-                return;
-            }
-
-            // Check password
-            if (user.password !== formData.password) {
-                setErrors({ password: 'Invalid password' });
-                setIsLoading(false);
-                return;
-            }
-
-            // Store current user session
+            // Store user data in localStorage or context as needed
             localStorage.setItem('currentUser', JSON.stringify(user));
+            console.log(JSON.stringify(user));
+            
+            // localStorage.setItem('token', user.token); // This is use when i create a token, then i use this
 
-            // Redirect based on role
-            redirectUser(user.role);
+            if (user.role === 'student') {
+                navigate('/dashboard');
+            } else if (user.role === 'teacher') {
+                navigate('/teacher-panel');
+            } else if (user.role === 'admin') {
+                navigate('/admin');
+            }
 
         } catch (error) {
-            setErrors({ submit: 'Login failed. Please try again.' });
+            console.error('Login error:', error);
+            setErrors({
+                submit: error.response?.data?.message || 'Invalid email or password. Please try again.'
+            });
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const redirectUser = (role) => {
-        if (role === 'student') {
-            navigate('/dashboard');
-        } else if (role === 'teacher') {
-            navigate('/teacher-panel'); // This should match your route
-        }
-    };
-
-    const handleSubmit = (e) => {
-        if (isLogin) {
-            handleLogin(e);
-        } else {
-            handleSignup(e);
-        }
-    };
-
-    const switchMode = () => {
-        setIsLogin(!isLogin);
-        setErrors({});
-        setFormData({
-            name: '',
-            email: '',
-            password: '',
-            role: 'student'
-        });
-        setShowSuccess(false);
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex items-center justify-center p-4">
-            {/* Success Popup */}
-            {showSuccess && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center animate-fade-in">
-                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <CheckCircle2 className="w-8 h-8 text-green-600" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">Account Created!</h3>
-                        <p className="text-gray-600 mb-6">
-                            Your account has been successfully created. Please login to continue.
-                        </p>
-                        <div className="w-12 h-1 bg-green-500 rounded-full mx-auto animate-pulse"></div>
-                    </div>
-                </div>
-            )}
-
-            {/* Auth Card */}
             <div className="w-full max-w-md">
                 {/* Logo */}
                 <div className="text-center mb-8">
@@ -216,47 +99,13 @@ const AuthPages = () => {
                         </div>
                         <span className="text-2xl font-bold text-gray-800">ExamPro</span>
                     </div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        {isLogin ? 'Welcome Back' : 'Create Account'}
-                    </h1>
-                    <p className="text-gray-600">
-                        {isLogin
-                            ? 'Sign in to your account to continue'
-                            : 'Join thousands of educators and students'
-                        }
-                    </p>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+                    <p className="text-gray-600">Sign in to your account to continue</p>
                 </div>
 
-                {/* Auth Form */}
+                {/* Login Form */}
                 <div className="bg-white rounded-2xl shadow-xl p-8 backdrop-blur-sm bg-white/90">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Name Field - Only for Signup */}
-                        {!isLogin && (
-                            <div className="space-y-2">
-                                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                                    Full Name
-                                </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <User className="h-5 w-5 text-gray-400" />
-                                    </div>
-                                    <input
-                                        id="name"
-                                        name="name"
-                                        type="text"
-                                        value={formData.name}
-                                        onChange={handleInputChange}
-                                        className={`block w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${errors.name ? 'border-red-300' : 'border-gray-300'
-                                            }`}
-                                        placeholder="Enter your full name"
-                                    />
-                                </div>
-                                {errors.name && (
-                                    <p className="text-red-600 text-sm mt-1">{errors.name}</p>
-                                )}
-                            </div>
-                        )}
-
+                    <form onSubmit={handleLogin} className="space-y-6">
                         {/* Email Field */}
                         <div className="space-y-2">
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -281,43 +130,6 @@ const AuthPages = () => {
                                 <p className="text-red-600 text-sm mt-1">{errors.email}</p>
                             )}
                         </div>
-
-                        {/* Role Selection - Only for Signup */}
-                        {!isLogin && (
-                            <div className="space-y-2">
-                                <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                                    I am a
-                                </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <Users className="h-5 w-5 text-gray-400" />
-                                    </div>
-                                    <select
-                                        id="role"
-                                        name="role"
-                                        value={formData.role}
-                                        onChange={handleInputChange}
-                                        className="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none bg-white"
-                                    >
-                                        <option value="student">Student</option>
-                                        <option value="teacher">Teacher</option>
-                                    </select>
-                                </div>
-                                <div className="flex items-center space-x-2 text-sm text-gray-600 mt-2">
-                                    {formData.role === 'student' ? (
-                                        <>
-                                            <GraduationCap className="w-4 h-4 text-blue-500" />
-                                            <span>Access to quizzes and learning materials</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Users className="w-4 h-4 text-green-500" />
-                                            <span>Create and manage quizzes, view analytics</span>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        )}
 
                         {/* Password Field */}
                         <div className="space-y-2">
@@ -355,14 +167,12 @@ const AuthPages = () => {
                             )}
                         </div>
 
-                        {/* Forgot Password - Only for Login */}
-                        {isLogin && (
-                            <div className="text-right">
-                                <button type="button" className="text-sm text-blue-600 hover:text-blue-500 font-medium transition-colors">
-                                    Forgot your password?
-                                </button>
-                            </div>
-                        )}
+                        {/* Forgot Password */}
+                        <div className="text-right">
+                            <button type="button" className="text-sm text-blue-600 hover:text-blue-500 font-medium transition-colors">
+                                Forgot your password?
+                            </button>
+                        </div>
 
                         {/* Submit Button */}
                         <button
@@ -374,7 +184,7 @@ const AuthPages = () => {
                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             ) : (
                                 <>
-                                    <span>{isLogin ? 'Sign In' : 'Create Account'}</span>
+                                    <span>Sign In</span>
                                     <ArrowRight className="w-5 h-5" />
                                 </>
                             )}
@@ -419,17 +229,16 @@ const AuthPages = () => {
                         </div>
                     </div>
 
-                    {/* Switch Auth Mode */}
+                    {/* Switch to Signup */}
                     <div className="mt-6 text-center">
                         <p className="text-gray-600">
-                            {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
-                            <button
-                                type="button"
-                                onClick={switchMode}
+                            Don't have an account?{' '}
+                            <Link
+                                to="/signup"
                                 className="text-blue-600 hover:text-blue-500 font-semibold transition-colors"
                             >
-                                {isLogin ? 'Sign up' : 'Login'}
-                            </button>
+                                Sign up
+                            </Link>
                         </p>
                     </div>
                 </div>
@@ -445,4 +254,4 @@ const AuthPages = () => {
     );
 };
 
-export default AuthPages;
+export default LoginPage;

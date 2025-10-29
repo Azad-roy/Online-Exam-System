@@ -67,15 +67,19 @@ const OnlineExamSystem = () => {
     ];
 
     const handleGetStarted = () => {
-        navigate('/auth');
+        navigate('/signup');
+    };
+
+    const handleLogin = () => {
+        navigate('/login');
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
             {/* Navigation */}
             <nav className={`fixed w-full z-50 transition-all duration-500 ${isScrolled
-                    ? 'bg-white/95 backdrop-blur-md shadow-lg py-2'
-                    : 'bg-transparent py-4'
+                ? 'bg-white/95 backdrop-blur-md shadow-lg py-2'
+                : 'bg-transparent py-4'
                 }`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center">
@@ -101,7 +105,7 @@ const OnlineExamSystem = () => {
                                 </a>
                             ))}
                             <button
-                                onClick={() => navigate('/auth')}
+                                onClick={handleLogin}
                                 className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
                             >
                                 Login
@@ -138,7 +142,7 @@ const OnlineExamSystem = () => {
                                     </a>
                                 ))}
                                 <button
-                                    onClick={() => { navigate('/auth'); setIsMenuOpen(false); }}
+                                    onClick={() => { handleLogin(); setIsMenuOpen(false); }}
                                     className="text-blue-600 hover:text-blue-700 font-medium text-left py-2"
                                 >
                                     Login
@@ -189,8 +193,11 @@ const OnlineExamSystem = () => {
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </button>
 
-                                <button className="group border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 flex items-center justify-center space-x-2">
-                                    <span>Watch Demo</span>
+                                <button
+                                    onClick={handleLogin}
+                                    className="group border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-300 flex items-center justify-center space-x-2"
+                                >
+                                    <span>Already have an account?</span>
                                     <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                                         <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M8 5v14l11-7z" />
@@ -248,8 +255,8 @@ const OnlineExamSystem = () => {
                                                     <div
                                                         key={idx}
                                                         className={`p-3 rounded-xl border-2 text-center font-medium transition-all duration-300 ${idx === 0
-                                                                ? 'border-blue-500 bg-blue-50 text-blue-700 scale-105'
-                                                                : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
+                                                            ? 'border-blue-500 bg-blue-50 text-blue-700 scale-105'
+                                                            : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
                                                             }`}
                                                     >
                                                         {option}
@@ -350,8 +357,11 @@ const OnlineExamSystem = () => {
                         >
                             Start Free Trial
                         </button>
-                        <button className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
-                            Schedule Demo
+                        <button
+                            onClick={handleLogin}
+                            className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300"
+                        >
+                            Sign In
                         </button>
                     </div>
                 </div>

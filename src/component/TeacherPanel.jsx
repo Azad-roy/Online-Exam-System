@@ -57,7 +57,7 @@ const TeacherPanel = () => {
         const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
         if (!currentUser) {
-            navigate('/auth');
+            navigate('/login');
             return;
         }
 
@@ -222,7 +222,7 @@ const TeacherPanel = () => {
     // Handle logout
     const handleLogout = () => {
         localStorage.removeItem('currentUser');
-        navigate('/auth');
+        navigate('/login');
     };
 
     // Mock statistics

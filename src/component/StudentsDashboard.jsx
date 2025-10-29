@@ -29,12 +29,12 @@ const StudentDashboard = () => {
         const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
         if (!currentUser) {
-            navigate('/auth');
+            navigate('/login');
             return;
         }
 
         if (currentUser.role !== 'student') {
-            navigate('/admin');
+            navigate('/dashboard');
             return;
         }
 
@@ -71,7 +71,7 @@ const StudentDashboard = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('currentUser');
-        navigate('/auth');
+        navigate('/login');
     };
 
     const startQuiz = (quiz) => {
@@ -503,6 +503,5 @@ const StudentDashboard = () => {
         </div>
     );
 };
-
 
 export default StudentDashboard;

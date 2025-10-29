@@ -196,7 +196,7 @@ const QuizAttempt = () => {
         const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
         if (!currentUser) {
-            navigate('/auth');
+            navigate('/login');
             return;
         }
 
@@ -385,10 +385,10 @@ const QuizAttempt = () => {
                                         key={index}
                                         onClick={() => jumpToQuestion(index)}
                                         className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium transition-all transform hover:scale-110 ${currentQuestionIndex === index
-                                                ? 'bg-blue-600 text-white shadow-lg scale-105'
-                                                : answers[quizQuestions[index].id] !== undefined
-                                                    ? 'bg-green-100 text-green-700 border border-green-300'
-                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            ? 'bg-blue-600 text-white shadow-lg scale-105'
+                                            : answers[quizQuestions[index].id] !== undefined
+                                                ? 'bg-green-100 text-green-700 border border-green-300'
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                             }`}
                                     >
                                         {index + 1}
@@ -449,14 +449,14 @@ const QuizAttempt = () => {
                                         key={index}
                                         onClick={() => handleAnswerSelect(quizQuestions[currentQuestionIndex].id, index)}
                                         className={`w-full text-left p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-[1.02] ${answers[quizQuestions[currentQuestionIndex].id] === index
-                                                ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-md scale-[1.02]'
-                                                : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                                            ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-md scale-[1.02]'
+                                            : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
                                             }`}
                                     >
                                         <div className="flex items-center space-x-4">
                                             <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${answers[quizQuestions[currentQuestionIndex].id] === index
-                                                    ? 'border-blue-500 bg-blue-500 text-white'
-                                                    : 'border-gray-300 text-gray-400'
+                                                ? 'border-blue-500 bg-blue-500 text-white'
+                                                : 'border-gray-300 text-gray-400'
                                                 }`}>
                                                 {answers[quizQuestions[currentQuestionIndex].id] === index ? (
                                                     <CheckCircle2 className="w-4 h-4" />
